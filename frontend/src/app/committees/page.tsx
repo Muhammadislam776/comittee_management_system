@@ -12,7 +12,7 @@ import {
 import { useToastStore } from "@/store/useToastStore";
 import { cn } from "@/lib/utils";
 
-const API = "http://localhost:5000/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const CATEGORIES = ["Executive","Finance","HR","Marketing","Technical","Operations","Legal","Other"];
 const STATUSES = ["Active","Inactive","Dissolved"] as const;
 

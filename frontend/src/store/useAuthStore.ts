@@ -43,7 +43,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     try {
-      const res = await axios.get('http://localhost:5000/api/auth/me');
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await axios.get(`${apiBase}/auth/me`);
       set({ user: res.data, loading: false });
     } catch (error) {
       localStorage.removeItem('token');

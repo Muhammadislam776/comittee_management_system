@@ -13,7 +13,7 @@ import {
 import { useToastStore } from "@/store/useToastStore";
 import { cn } from "@/lib/utils";
 
-const API = "http://localhost:5000/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
 interface UserRef { _id: string; name: string; email: string; role: string; }

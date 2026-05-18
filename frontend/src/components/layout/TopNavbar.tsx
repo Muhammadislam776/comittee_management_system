@@ -109,7 +109,8 @@ export function TopNavbar() {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+      await fetch(`${apiBase}/auth/logout`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
     } catch {}

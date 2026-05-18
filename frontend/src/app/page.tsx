@@ -15,6 +15,8 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 interface Stats {
   committees: number;
   meetings: number;
@@ -120,9 +122,9 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const [commRes, meetRes, taskRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/committees"),
-        axios.get("http://localhost:5000/api/meetings"),
-        axios.get("http://localhost:5000/api/tasks/user"),
+        axios.get(`${API}/committees`),
+        axios.get(`${API}/meetings`),
+        axios.get(`${API}/tasks/user`),
       ]);
       setStats({
         committees: commRes.data.length,

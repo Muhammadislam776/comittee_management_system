@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import axios from "axios";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export default function SettingsPage() {
   const { user, token } = useAuthStore();
   const { 
@@ -58,7 +60,7 @@ export default function SettingsPage() {
     try {
       setProfileLoading(true);
       const res = await axios.put(
-        "http://localhost:5000/api/auth/updatedetails",
+        `${API}/auth/updatedetails`,
         { name, email },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -103,7 +105,7 @@ export default function SettingsPage() {
     try {
       setPasswordLoading(true);
       const res = await axios.put(
-        "http://localhost:5000/api/auth/updatedetails",
+        `${API}/auth/updatedetails`,
         { password, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );

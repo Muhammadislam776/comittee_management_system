@@ -10,6 +10,8 @@ import {
 import { useToastStore } from "@/store/useToastStore";
 import { useSocket } from "@/context/SocketContext";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 interface User {
   id: string;
   _id: string;
@@ -84,7 +86,7 @@ export default function KanbanBoard() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/tasks", {
+      const res = await axios.get(`${API}/tasks`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTasks(res.data);
@@ -100,10 +102,10 @@ export default function KanbanBoard() {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
       
-      const usersRes = await axios.get("http://localhost:5000/api/auth/users", { headers });
+      const usersRes = await axios.get(`${API}/auth/users`, { headers });
       setUsers(usersRes.data.data);
 
-      const meetingsRes = await axios.get("http://localhost:5000/api/meetings", { headers });
+      const meetingsRes = await axios.get(`${API}/meetings`, { headers });
       setMeetings(meetingsRes.data);
     } catch (err: any) {
       console.error("Failed to load selectors data", err);
@@ -189,7 +191,7 @@ export default function KanbanBoard() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.put(
-        `http://localhost:5000/api/tasks/${taskId}`,
+        `${API}/tasks/${taskId}`,
         { status: targetStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -215,7 +217,7 @@ export default function KanbanBoard() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "http://localhost:5000/api/tasks",
+        `${API}/tasks`,
         {
           title,
           description,
@@ -243,7 +245,7 @@ export default function KanbanBoard() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `http://localhost:5000/api/tasks/${selectedTask._id}/comments`,
+        `${API}/tasks/${selectedTask._id}/comments`,
         { text: commentText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -264,7 +266,7 @@ export default function KanbanBoard() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `http://localhost:5000/api/tasks/${selectedTask._id}/attachments`,
+        `${API}/tasks/${selectedTask._id}/attachments`,
         { name: attachmentName, url: attachmentUrl },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -283,7 +285,7 @@ export default function KanbanBoard() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, {
+      await axios.delete(`${API}/tasks/${taskId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       addToast("Task deleted successfully", "success");

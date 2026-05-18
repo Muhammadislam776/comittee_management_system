@@ -34,8 +34,9 @@ export default function ResetPassword({ params }: { params: Promise<{ token: str
     setError("");
     setLoading(true);
 
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/resetpassword/${token}`, {
+      const res = await fetch(`${apiBase}/auth/resetpassword/${token}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),

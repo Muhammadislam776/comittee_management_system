@@ -11,7 +11,7 @@ import {
 import { useToastStore } from "@/store/useToastStore";
 import { cn } from "@/lib/utils";
 
-const API = "http://localhost:5000/api";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const STATUSES = ["Scheduled", "In Progress", "Completed", "Cancelled", "Postponed"] as const;
 
 type Status = typeof STATUSES[number];
