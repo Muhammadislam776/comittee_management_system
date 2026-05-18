@@ -146,7 +146,7 @@ export default function PollsPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {polls.map((poll, i) => {
-            const hasVoted = user && poll.voters.includes(user._id);
+            const hasVoted = !!(user && user._id && poll.voters.includes(user._id));
             const isClosed = poll.status === "Closed" || new Date(poll.expiresAt) < new Date();
             const totalVotes = poll.options.reduce((sum, opt) => sum + opt.voteCount, 0);
 

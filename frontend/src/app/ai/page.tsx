@@ -37,6 +37,7 @@ export default function AICopilotPage() {
     committees: any[];
     meetings: any[];
     tasks: any[];
+    aiResponseText?: string;
   } | null>(null);
 
   // Meeting co-pilot states
@@ -68,7 +69,7 @@ export default function AICopilotPage() {
       if (parsedUsers.length > 0) {
         setSelectedAssignee(parsedUsers[0]._id);
       } else if (user) {
-        setSelectedAssignee(user._id);
+        setSelectedAssignee((user as any)._id || user.id || "");
       }
     } catch (e) {
       console.error(e);
