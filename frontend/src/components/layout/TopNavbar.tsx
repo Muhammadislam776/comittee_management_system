@@ -151,9 +151,18 @@ export function TopNavbar() {
       )}
 
       <header
-        className="sticky top-0 z-40 w-full glass border-b h-[62px] flex items-center justify-between px-5"
-        style={{ paddingLeft: `calc(var(--sidebar-width) + 1.25rem)` }}
+        className="sticky top-0 z-40 w-full glass border-b h-[62px] flex items-center justify-between px-5 top-navbar-spacing"
       >
+        <style>{`
+          .top-navbar-spacing {
+            padding-left: 1.25rem !important;
+          }
+          @media (min-width: 1024px) {
+            .top-navbar-spacing {
+              padding-left: calc(var(--sidebar-width) + 1.25rem) !important;
+            }
+          }
+        `}</style>
         {/* Left */}
         <div className="flex items-center space-x-4">
           <button

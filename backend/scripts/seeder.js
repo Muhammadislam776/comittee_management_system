@@ -16,11 +16,23 @@ dotenv.config();
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/committee_db');
+    const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/committee_db';
+    console.log(`Connecting to database for seeding...`);
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000
+    });
     console.log(`Connected to database for seeding: ${conn.connection.host}`);
   } catch (err) {
-    console.error(`Database connection error: ${err.message}`);
-    process.exit(1);
+    console.warn(`⚠️  Atlas seeding connection failed: ${err.message}\n⚡ Falling back to local MongoDB for seeding...`);
+    try {
+      const conn = await mongoose.connect('mongodb://127.0.0.1:27017/committee_db', {
+        serverSelectionTimeoutMS: 5000
+      });
+      console.log(`Connected to local database for seeding: ${conn.connection.host}`);
+    } catch (localErr) {
+      console.error(`❌ Local MongoDB Seeding Connection Error: ${localErr.message}`);
+      process.exit(1);
+    }
   }
 };
 
