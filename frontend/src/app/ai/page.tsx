@@ -261,17 +261,33 @@ export default function AICopilotPage() {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                   className="glass-card p-5 border border-white/5 space-y-4">
                   <div className="flex justify-between items-center border-b border-white/5 pb-3">
-                    <h4 className="text-xs font-bold text-slate-300">AI Matched Results</h4>
+                    <h4 className="text-xs font-bold text-slate-300">AI Co-Pilot Workspace Assistant</h4>
                     <button onClick={() => setSearchResults(null)} className="text-[10px] text-muted-foreground hover:text-white uppercase font-bold">Clear Results</button>
                   </div>
 
-                  {searchResults.committees.length === 0 && searchResults.meetings.length === 0 && searchResults.tasks.length === 0 ? (
-                    <div className="text-center py-6 text-xs text-muted-foreground flex flex-col items-center gap-2">
-                      <AlertCircle size={24} className="text-indigo-500/40" />
-                      <span>No matching records found for this query context. Try searching "tasks" or "meetings".</span>
+                  {/* Smart Conversational Response Dialog */}
+                  {searchResults.aiResponseText && (
+                    <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-4 text-xs leading-relaxed space-y-2 text-slate-100 shadow-lg shadow-indigo-500/5">
+                      <div className="flex items-center gap-1.5 text-indigo-400 font-extrabold">
+                        <span className="p-1 rounded-lg bg-indigo-500/20 animate-pulse">
+                          <Sparkles size={12} />
+                        </span>
+                        <span>AI Assistant Response</span>
+                      </div>
+                      <p className="whitespace-pre-wrap font-sans text-[11px] text-slate-200">{searchResults.aiResponseText}</p>
                     </div>
+                  )}
+
+                  {searchResults.committees.length === 0 && searchResults.meetings.length === 0 && searchResults.tasks.length === 0 ? (
+                    !searchResults.aiResponseText && (
+                      <div className="text-center py-6 text-xs text-muted-foreground flex flex-col items-center gap-2">
+                        <AlertCircle size={24} className="text-indigo-500/40" />
+                        <span>No matching records found for this query context. Try searching "tasks" or "meetings".</span>
+                      </div>
+                    )
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-4 pt-2">
+                      <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider border-b border-white/5 pb-1">Related Workspace Records:</div>
                       
                       {/* Matched Committees */}
                       {searchResults.committees.length > 0 && (

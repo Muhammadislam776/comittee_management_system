@@ -22,8 +22,8 @@ interface Option { _id: string; text: string; voteCount: number; }
 interface Poll {
   _id: string; title: string; description: string; options: Option[];
   expiresAt: string; status: "Active" | "Closed";
-  voters: string[]; createdBy: { _id: string; name: string };
-  committee?: { _id: string; name: string };
+  voters: string[]; createdBy?: { _id: string; name: string } | null;
+  committee?: { _id: string; name: string } | null;
   createdAt: string;
 }
 
@@ -152,13 +152,13 @@ export default function PollsPage() {
 
             return (
               <motion.div key={poll._id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                className="glass-card p-6 flex flex-col justify-between">
+                className="glass-card p-6 flex flex-col justify-between hover:border-white/10 transition-all">
                 
                 {/* Poll Header */}
                 <div>
                   <div className="flex justify-between items-start gap-4">
                     <h3 className="text-lg font-bold leading-tight">{poll.title}</h3>
-                    {(user?.role === 'admin' || user?._id === poll.createdBy._id) && (
+                    {(user?.role === 'admin' || (poll.createdBy && user?._id === poll.createdBy._id)) && (
                       <button onClick={() => handleDelete(poll._id)} className="p-1.5 rounded-lg text-muted-foreground hover:bg-rose-500/10 hover:text-rose-400 transition-colors">
                         <Trash2 size={16} />
                       </button>
@@ -179,7 +179,10 @@ export default function PollsPage() {
                     )}
                     <span className="flex items-center gap-1 bg-black/5 dark:bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
                       <Clock size={10} />
-                      {new Date(poll.expiresAt).toLocaleDateString()}
+                      Ends: {new Date(poll.expiresAt).toLocaleDateString()}
+                    </span>
+                    <span className="flex items-center gap-1 bg-black/5 dark:bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+                      Creator: {poll.createdBy?.name || "Deleted User"}
                     </span>
                   </div>
                 </div>
@@ -204,37 +207,60 @@ export default function PollsPage() {
                         <span className="text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">{totalVotes} Votes Cast</span>
                       </div>
                       
-                      {totalVotes > 0 ? (
-                        <div className="h-48 w-full">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={poll.options}
-                                dataKey="voteCount"
-                                nameKey="text"
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={45}
-                                outerRadius={70}
-                                paddingAngle={5}
-                              >
-                                {poll.options.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                              </Pie>
-                              <RechartsTooltip 
-                                contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '12px' }}
-                                itemStyle={{ color: '#fff' }}
-                              />
-                              <Legend iconType="circle" wrapperStyle={{ fontSize: '11px' }} />
-                            </PieChart>
-                          </ResponsiveContainer>
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                        {/* Custom Animated Progress Bars */}
+                        <div className="md:col-span-3 space-y-3">
+                          {poll.options.map((opt, index) => {
+                            const percentage = totalVotes > 0 ? Math.round((opt.voteCount / totalVotes) * 100) : 0;
+                            const optionColor = COLORS[index % COLORS.length];
+                            return (
+                              <div key={opt._id} className="space-y-1.5">
+                                <div className="flex justify-between items-center text-xs font-medium text-slate-200">
+                                  <span className="truncate max-w-[150px]">{opt.text}</span>
+                                  <span className="font-bold shrink-0" style={{ color: optionColor }}>{opt.voteCount} ({percentage}%)</span>
+                                </div>
+                                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${percentage}%` }}
+                                    transition={{ duration: 0.8, ease: "easeOut" }}
+                                    className="h-full rounded-full"
+                                    style={{ backgroundColor: optionColor }}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                      ) : (
-                        <div className="h-32 flex items-center justify-center border border-dashed border-white/10 rounded-xl text-xs text-muted-foreground">
-                          No votes recorded yet.
-                        </div>
-                      )}
+
+                        {/* Pie Chart Visualizer */}
+                        {totalVotes > 0 ? (
+                          <div className="md:col-span-2 h-32 w-full relative">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie
+                                  data={poll.options}
+                                  dataKey="voteCount"
+                                  nameKey="text"
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={25}
+                                  outerRadius={45}
+                                  paddingAngle={3}
+                                >
+                                  {poll.options.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                  ))}
+                                </Pie>
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        ) : (
+                          <div className="md:col-span-2 h-32 flex items-center justify-center border border-dashed border-white/10 rounded-xl text-[10px] text-muted-foreground text-center px-2 leading-tight">
+                            No votes recorded yet.
+                          </div>
+                        )}
+                      </div>
                       
                       {hasVoted && (
                         <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-lg mt-2">

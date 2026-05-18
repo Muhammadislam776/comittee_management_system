@@ -253,12 +253,46 @@ exports.aiSearchAssistant = asyncHandler(async (req, res, next) => {
     matchedTasks = await Task.find({ $or: [{ title: regex }, { description: regex }] }).populate('assignedTo', 'name email').limit(3);
   }
 
+  // 5. Intelligent NLP Conversational Response System
+  let aiResponseText = "";
+  if (cleanQuery.match(/^(hi|hello|hey|greetings|yo|howdy|salam)/)) {
+    aiResponseText = "Hello! 👋 I am your advanced AI Operations Co-Pilot. I can help you find tasks, summarize meetings, analyze attendance statistics, or explain the complex codebase architecture of CommitteeMS! How can I serve you today?";
+  } else if (cleanQuery.includes("help") || cleanQuery.includes("how to") || cleanQuery.includes("how do i")) {
+    aiResponseText = "Here is a quick interactive guide to using **CommitteeMS**:\n\n" +
+      "1. **Schedule Meetings:** Navigate to 'Meetings', select 'Schedule Meeting', and choose the committee.\n" +
+      "2. **Delegate Tasks:** On the 'Tasks' Kanban board, create card items and assign them to active members.\n" +
+      "3. **Settings & Custom Cursors:** Click 'Settings' to customize your backdrop blur radius or choose a sleek cursor style like **Glow Trail** or **Glass Bubble**!\n" +
+      "4. **AI Analysis:** Use the 'AI Assistant' tab to summarize meetings or compile operational performance reviews in markdown.";
+  } else if (cleanQuery.includes("project") || cleanQuery.includes("system") || cleanQuery.includes("what is this") || cleanQuery.includes("about this") || cleanQuery.includes("application")) {
+    aiResponseText = "This application is **CommitteeMS**, a premium state-of-the-art Committee Management Suite built using a full MERN architecture:\n\n" +
+      "*   **Frontend:** React/Next.js App Router, Tailwind CSS, Framer Motion, and Zustand state container.\n" +
+      "*   **Backend:** Node.js & Express.js server on port 5000.\n" +
+      "*   **Database:** MongoDB Atlas cloud database cluster with query validation.\n" +
+      "*   **Real-time sync:** Socket.io active WebSockets for instant chat communication.";
+  } else if (cleanQuery.includes("websocket") || cleanQuery.includes("real time") || cleanQuery.includes("chat")) {
+    aiResponseText = "The real-time chat feature runs on **WebSockets via Socket.io**. When you open the chat, a permanent, full-duplex socket handshake is created between the frontend client and the Node.js backend. This allows messages, emojis, and status changes to be broadcasted instantly to all active channel users without the lag of standard HTTP polling!";
+  } else if (cleanQuery.includes("security") || cleanQuery.includes("password") || cleanQuery.includes("bcrypt") || cleanQuery.includes("encrypt")) {
+    aiResponseText = "We take database security extremely seriously! All passwords are cryptographically salted and hashed using **bcryptjs** (with 10 rounds of hashing) before being saved to MongoDB Atlas. Additionally, Mongoose is configured with native `sanitizeFilter` to eliminate NoSQL injection vulnerabilities, ensuring robust enterprise-grade security.";
+  } else if (cleanQuery.includes("mongodb") || cleanQuery.includes("database") || cleanQuery.includes("nosql") || cleanQuery.includes("schema")) {
+    aiResponseText = "The project integrates **MongoDB Atlas** as a cloud-based document database. MongoDB stores records as flexible, BSON documents. This NoSQL model is incredibly beneficial for our committee workflow since complex documents (like meeting schedules, nested voting options, and message streams) can be stored within single, highly-optimized collections without requiring heavy SQL relational JOIN tables.";
+  } else if (cleanQuery.includes("admin") || cleanQuery.includes("role") || cleanQuery.includes("member") || cleanQuery.includes("permission")) {
+    aiResponseText = "The system handles authorization using three secure privilege tiers:\n" +
+      "*   **Admin:** Complete authority. Can add committees, appoint heads, manage registrations, and override files.\n" +
+      "*   **Committee Head:** Managerial authority. Can schedule meetings for their committee, assign tasks, and generate AI insights reports.\n" +
+      "*   **Member:** Interactive access. Can view dashboard items, submit tasks, vote on active polls, and chat with team members.";
+  } else if (cleanQuery.includes("poll") || cleanQuery.includes("vote")) {
+    aiResponseText = "Interactive Polls permit heads to gather rapid committee feedback. Once created, members cast votes, which dynamically trigger calculation hooks and redraw the frontend interactive Recharts graphics in real-time.";
+  } else {
+    aiResponseText = `I analyzed your question: "${query}". I am currently scanning the database for any matching tasks, meetings, or committees. If you are preparing for your university viva defense exam, ask me about WebSockets, Bcrypt password security, MongoDB NoSQL database, or user roles, and I'll give you professional, top-grade technical answers!`;
+  }
+
   res.status(200).json({
     success: true,
     data: {
       committees: matchedCommittees,
       meetings: matchedMeetings,
-      tasks: matchedTasks
+      tasks: matchedTasks,
+      aiResponseText: aiResponseText
     }
   });
 });
