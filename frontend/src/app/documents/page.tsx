@@ -16,17 +16,17 @@ const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token
 
 interface UserRef { _id: string; name: string; email: string; role: string; }
 interface CommitteeRef { _id: string; name: string; }
-interface DocVersion { version: number; url: string; fileName: string; uploadedBy: { name: string; email: string; }; createdAt: string; }
+interface DocVersion { version: number; url: string; fileName: string; uploadedBy?: { name: string; email: string; } | null; createdAt: string; }
 interface DocumentItem {
   _id: string;
   title: string;
   description: string;
   committee: CommitteeRef | null;
-  createdBy: UserRef;
+  createdBy?: UserRef | null;
   currentVersion: number;
   versions: DocVersion[];
   approvalStatus: 'Pending' | 'Approved' | 'Rejected';
-  approvedBy: UserRef | null;
+  approvedBy?: UserRef | null;
   approvalDate: string | null;
   updatedAt: string;
 }
@@ -234,7 +234,7 @@ export default function DocumentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {documents.map((doc) => {
             const latestVer = doc.versions[doc.versions.length - 1];
-            const isUploader = user && doc.createdBy._id === user._id;
+            const isUploader = user && doc.createdBy && doc.createdBy._id === user._id;
             const canApprove = user && ['admin', 'Committee Head', 'head'].includes(user.role);
 
             return (
@@ -261,7 +261,7 @@ export default function DocumentsPage() {
                   <div className="border-t border-white/5 mt-4 pt-4 space-y-2">
                     <div className="flex justify-between text-[10px] text-muted-foreground">
                       <span>Uploaded by:</span>
-                      <span className="font-semibold text-white">{doc.createdBy.name}</span>
+                      <span className="font-semibold text-white">{doc.createdBy?.name || "Deleted User"}</span>
                     </div>
                     <div className="flex justify-between text-[10px] text-muted-foreground">
                       <span>Last Modified:</span>
@@ -410,7 +410,7 @@ export default function DocumentsPage() {
                     <div className="grow bg-white/5 rounded-xl p-3 border border-white/5 text-xs flex justify-between items-center">
                       <div>
                         <span className="font-bold text-white block truncate max-w-[200px]">{ver.fileName}</span>
-                        <span className="text-[10px] text-muted-foreground block mt-0.5">Uploaded by {ver.uploadedBy.name} • {new Date(ver.createdAt).toLocaleString()}</span>
+                        <span className="text-[10px] text-muted-foreground block mt-0.5">Uploaded by {ver.uploadedBy?.name || "Deleted User"} • {new Date(ver.createdAt).toLocaleString()}</span>
                       </div>
                       <a href={ver.url} target="_blank" rel="noopener noreferrer" download
                         className="p-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg transition-all shrink-0">
