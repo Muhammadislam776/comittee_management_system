@@ -190,7 +190,7 @@ export function TopNavbar() {
             className={cn(
               "flex items-center space-x-2 px-3 py-2 rounded-xl border transition-all duration-200 cursor-text",
               searchOpen
-                ? "bg-white dark:bg-white/5 border-indigo-500/40 shadow-lg shadow-indigo-500/10"
+                ? "bg-card border-indigo-500/40 shadow-lg shadow-indigo-500/10"
                 : "bg-black/5 dark:bg-white/5 border-transparent hover:border-indigo-500/20"
             )}
             onClick={() => setSearchOpen(true)}
@@ -199,7 +199,7 @@ export function TopNavbar() {
             <input
               type="text"
               placeholder="Search committees, meetings, tasks…"
-              className="flex-1 text-xs bg-transparent outline-none placeholder:text-muted-foreground/60"
+              className="flex-1 text-xs bg-transparent outline-none placeholder:text-muted-foreground/60 text-foreground"
               onFocus={() => setSearchOpen(true)}
               onBlur={() => setSearchOpen(false)}
             />
