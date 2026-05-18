@@ -53,7 +53,7 @@ const sidebarVariants = {
   visible: {
     x: 0,
     opacity: 1,
-    transition: { type: "spring", stiffness: 300, damping: 30 },
+    transition: { type: "spring" as const, stiffness: 300, damping: 30 },
   },
 };
 
@@ -62,7 +62,7 @@ const itemVariants = {
   visible: (i: number) => ({
     opacity: 1,
     x: 0,
-    transition: { delay: i * 0.05, type: "spring", stiffness: 200 },
+    transition: { delay: i * 0.05, type: "spring" as const, stiffness: 200 },
   }),
 };
 

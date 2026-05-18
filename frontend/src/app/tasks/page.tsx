@@ -371,70 +371,73 @@ export default function KanbanBoard() {
                   {colTasks.length > 0 ? (
                     colTasks.map((task, idx) => (
                       <motion.div
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, task._id)}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
-                        onClick={() => setSelectedTask(task)}
                         key={task._id}
-                        className="p-4 bg-slate-950/80 border border-slate-850 hover:border-slate-750 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-950 transition-all shadow-md group relative overflow-hidden"
                       >
-                        {/* Custom visual priority indicator pill */}
-                        <div className="flex items-center justify-between gap-2 mb-2.5">
-                          <span className={`inline-block text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md tracking-wider ${
-                            task.priority === "High" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" :
-                            task.priority === "Medium" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
-                            "bg-slate-500/10 text-slate-400 border border-slate-800"
-                          }`}>
-                            {task.priority} Priority
-                          </span>
-                          
-                          {/* Attachments / Comments icons */}
-                          <div className="flex gap-2 text-slate-500">
-                            {task.attachments?.length > 0 && (
-                              <span className="flex items-center gap-0.5 text-[10px]">
-                                <Paperclip size={10} />
-                                {task.attachments.length}
-                              </span>
-                            )}
-                            {task.comments?.length > 0 && (
-                              <span className="flex items-center gap-0.5 text-[10px]">
-                                <MessageSquare size={10} />
-                                {task.comments.length}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Title & Description */}
-                        <h4 className="text-sm font-bold text-white group-hover:text-yellow-400 transition-colors leading-snug">
-                          {task.title || task.description}
-                        </h4>
-                        
-                        {task.title && (
-                          <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 h-7">
-                            {task.description}
-                          </p>
-                        )}
-
-                        {/* Card Footer: Assignee & Deadline */}
-                        <div className="flex justify-between items-center border-t border-slate-900/90 pt-3 mt-3 gap-2">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <div className="w-5.5 h-5.5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 text-[9px] font-bold shrink-0">
-                              {task.assignedTo?.name?.substring(0, 2).toUpperCase() || "?"}
+                        <div
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, task._id)}
+                          onClick={() => setSelectedTask(task)}
+                          className="p-4 bg-slate-950/80 border border-slate-850 hover:border-slate-750 rounded-xl cursor-grab active:cursor-grabbing hover:bg-slate-950 transition-all shadow-md group relative overflow-hidden"
+                        >
+                          {/* Custom visual priority indicator pill */}
+                          <div className="flex items-center justify-between gap-2 mb-2.5">
+                            <span className={`inline-block text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md tracking-wider ${
+                              task.priority === "High" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" :
+                              task.priority === "Medium" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
+                              "bg-slate-500/10 text-slate-400 border border-slate-800"
+                            }`}>
+                              {task.priority} Priority
+                            </span>
+                            
+                            {/* Attachments / Comments icons */}
+                            <div className="flex gap-2 text-slate-500">
+                              {task.attachments?.length > 0 && (
+                                <span className="flex items-center gap-0.5 text-[10px]">
+                                  <Paperclip size={10} />
+                                  {task.attachments.length}
+                                </span>
+                              )}
+                              {task.comments?.length > 0 && (
+                                <span className="flex items-center gap-0.5 text-[10px]">
+                                  <MessageSquare size={10} />
+                                  {task.comments.length}
+                                </span>
+                              )}
                             </div>
-                            <span className="text-[10px] text-muted-foreground truncate font-medium">
-                              {task.assignedTo?.name || "N/A"}
-                            </span>
                           </div>
 
-                          {task.deadline && (
-                            <span className="flex items-center gap-1 text-[9px] text-slate-500 font-semibold shrink-0">
-                              <Calendar size={10} />
-                              {new Date(task.deadline).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
-                            </span>
+                          {/* Title & Description */}
+                          <h4 className="text-sm font-bold text-white group-hover:text-yellow-400 transition-colors leading-snug">
+                            {task.title || task.description}
+                          </h4>
+                          
+                          {task.title && (
+                            <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 h-7">
+                              {task.description}
+                            </p>
                           )}
+
+                          {/* Card Footer: Assignee & Deadline */}
+                          <div className="flex justify-between items-center border-t border-slate-900/90 pt-3 mt-3 gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <div className="w-5.5 h-5.5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 text-[9px] font-bold shrink-0">
+                                {task.assignedTo?.name?.substring(0, 2).toUpperCase() || "?"}
+                              </div>
+                              <span className="text-[10px] text-muted-foreground truncate font-medium">
+                                {task.assignedTo?.name || "N/A"}
+                              </span>
+                            </div>
+
+                            {task.deadline && (
+                              <span className="flex items-center gap-1 text-[9px] text-slate-500 font-semibold shrink-0">
+                                <Calendar size={10} />
+                                {new Date(task.deadline).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </motion.div>
                     ))
