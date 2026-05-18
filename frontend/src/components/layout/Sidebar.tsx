@@ -262,9 +262,10 @@ function SidebarContent({
               <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
                 Unlock advanced analytics & unlimited committees
               </p>
-              <button className="mt-2 text-[10px] font-semibold px-3 py-1 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:opacity-90 transition-opacity">
+              <Link href="/upgrade" onClick={() => !isDesktop && setSidebarOpen(false)}
+                className="inline-block mt-2 text-[10px] font-semibold px-3 py-1 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:opacity-90 transition-opacity text-center">
                 Upgrade Now →
-              </button>
+              </Link>
             </div>
           </div>
         </div>
