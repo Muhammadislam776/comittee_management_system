@@ -165,3 +165,52 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
   const users = await User.find().select('-password');
   res.status(200).json({ success: true, data: users });
 });
+
+// @desc      Update user details (name, email, password)
+// @route     PUT /api/auth/updatedetails
+// @access    Private
+exports.updateDetails = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new ErrorResponse('User not found', 404));
+  }
+
+  // Update simple fields
+  if (req.body.name) user.name = req.body.name;
+  if (req.body.email) {
+    // Check if new email is already taken
+    if (req.body.email !== user.email) {
+      const emailExists = await User.findOne({ email: req.body.email });
+      if (emailExists) {
+        return next(new ErrorResponse('Email already in use', 400));
+      }
+      user.email = req.body.email;
+    }
+  }
+
+  // Handle password update if password is provided
+  if (req.body.password && req.body.newPassword) {
+    // Check current password
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    if (!isMatch) {
+      return next(new ErrorResponse('Incorrect current password', 400));
+    }
+    
+    // Salt & hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(req.body.newPassword, salt);
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  });
+});

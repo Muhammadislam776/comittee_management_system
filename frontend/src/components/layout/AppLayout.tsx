@@ -7,6 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { TopNavbar } from "./TopNavbar";
 import { motion, AnimatePresence } from "framer-motion";
+import { CustomCursor } from "@/components/ui/CustomCursor";
 
 const AUTH_PATHS = ["/login", "/register", "/forgot-password"];
 
@@ -61,6 +62,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
+      <CustomCursor />
       {/* Sidebar */}
       <Sidebar />
 
