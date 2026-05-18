@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles, Check, Zap, Shield, Crown, Building2, CreditCard, Lock, Loader2, ArrowRight, CheckCircle2, Star
+  Sparkles, Check, Zap, Shield, Crown, Building2, CreditCard, Lock, Loader2, ArrowRight, CheckCircle2, Star, X
 } from "lucide-react";
 import { useToastStore } from "@/store/useToastStore";
 
