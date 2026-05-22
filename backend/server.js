@@ -78,6 +78,7 @@ const chat = require('./routes/chat');
 const documents = require('./routes/documents');
 const analytics = require('./routes/analytics');
 const ai = require('./routes/ai');
+const health = require('./routes/health');
 
 // Mount routers
 app.use('/api/auth', auth);
@@ -89,6 +90,7 @@ app.use('/api/chat', chat);
 app.use('/api/documents', documents);
 app.use('/api/analytics', analytics);
 app.use('/api/ai', ai);
+app.use('/api/health', health);
 
 // Error handler middleware must be after routes
 app.use(errorHandler);
