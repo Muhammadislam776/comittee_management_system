@@ -16,6 +16,13 @@ dotenv.config();
 
 const app = express();
 
+// When running behind a proxy (Render, Vercel, Heroku, etc.) Express must
+// trust the proxy so middleware like express-rate-limit can read the
+// correct client IP from the X-Forwarded-For header. Enable in production.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Middleware
 // Set security HTTP headers
 app.use(helmet());
