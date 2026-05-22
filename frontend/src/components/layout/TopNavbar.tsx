@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import {
   Moon,
@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Star,
   Trash2,
+  Download,
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useToastStore } from "@/store/useToastStore";
@@ -101,6 +102,37 @@ export function TopNavbar() {
   const { addToast } = useToastStore();
 
   const [notifOpen, setNotifOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      console.log("[PWA] beforeinstallprompt event captured");
+    };
+
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      addToast("CommitteeMS installed successfully!", "success");
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, [addToast]);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`[PWA] Install choice: ${outcome}`);
+    setDeferredPrompt(null);
+  };
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [notifList, setNotifList] = useState(notifications);
@@ -212,6 +244,24 @@ export function TopNavbar() {
 
         {/* Right */}
         <div className="flex items-center space-x-2">
+          {/* PWA Install Button */}
+          <AnimatePresence>
+            {deferredPrompt && (
+              <motion.button
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleInstallClick}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-indigo-500/20 bg-indigo-500/10 dark:bg-indigo-500/5 hover:bg-indigo-500 hover:text-white text-indigo-600 dark:text-indigo-400 dark:hover:bg-indigo-600 dark:hover:text-white transition-all duration-200 cursor-pointer shadow-sm shadow-indigo-500/5 text-xs font-semibold mr-1"
+                aria-label="Install application"
+              >
+                <Download size={14} className="animate-bounce" />
+                <span className="hidden sm:inline">Install App</span>
+              </motion.button>
+            )}
+          </AnimatePresence>
+
           {/* Theme Toggle */}
           <motion.button
             whileTap={{ scale: 0.9 }}

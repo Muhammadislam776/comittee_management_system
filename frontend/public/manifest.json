@@ -1,0 +1,37 @@
+{
+  "name": "CommitteeMS — Committee Management System",
+  "short_name": "CommitteeMS",
+  "description": "A premium SaaS-grade Committee Management System built with Next.js and MERN stack.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08091a",
+  "theme_color": "#6366f1",
+  "orientation": "any",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

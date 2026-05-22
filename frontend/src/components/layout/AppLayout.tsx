@@ -9,7 +9,7 @@ import { TopNavbar } from "./TopNavbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 
-const AUTH_PATHS = ["/login", "/register", "/forgot-password"];
+const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/offline"];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, checkAuth } = useAuthStore();
@@ -53,6 +53,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+
+  if (pathname === "/offline") return <>{children}</>;
 
   const isAuthPage =
     AUTH_PATHS.includes(pathname) || pathname.startsWith("/reset-password");

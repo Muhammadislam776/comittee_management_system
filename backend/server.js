@@ -14,9 +14,6 @@ const rateLimit = require('express-rate-limit');
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
-
 const app = express();
 
 // Middleware
@@ -27,16 +24,28 @@ app.use(helmet());
 const allowedOrigins = [
   'http://localhost:3000',
   process.env.FRONTEND_URL
-].filter(Boolean);
+].filter(Boolean).map(origin => origin.trim().replace(/\/$/, ""));
 
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow non-browser requests (e.g. Server-to-Server, curl, Postman)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    
+    const sanitizedOrigin = origin.trim().replace(/\/$/, "");
+    
+    // 1. Exact match with allowedOrigins list
+    const isAllowed = allowedOrigins.includes(sanitizedOrigin);
+    
+    // 2. Dynamic check for Vercel domains (including automatic preview/deployment branches)
+    const isVercelSubdomain = sanitizedOrigin.endsWith('.vercel.app') || 
+                              /^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(sanitizedOrigin);
+    
+    if (isAllowed || isVercelSubdomain) {
+      return callback(null, true);
     }
-    return callback(null, true);
+    
+    const msg = `CORS blocked: Origin ${origin} is not allowed. Check backend environment variables (FRONTEND_URL).`;
+    return callback(new Error(msg), false);
   },
   credentials: true
 }));
@@ -89,9 +98,20 @@ const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 initSocket(server);
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error(`Failed to start server: ${err.message}`);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {

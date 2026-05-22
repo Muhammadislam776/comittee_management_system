@@ -4,26 +4,25 @@ const mongoose = require('mongoose');
 mongoose.set('sanitizeFilter', true);
 
 const connectDB = async () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const localUri = 'mongodb://127.0.0.1:27017/committee_db';
+  const uri = process.env.MONGO_URI || (!isProduction ? localUri : null);
+
+  if (!uri) {
+    throw new Error('MONGO_URI is required in production. Set the MongoDB Atlas connection string in the deployment environment.');
+  }
+
   try {
-    const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/committee_db';
     console.log(`Attempting to connect to MongoDB...`);
     
-    // Set connection timeout lower to fall back faster if network is blocked
+    // Set connection timeout lower to fail fast when the database is unreachable
     const conn = await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000 
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
-    console.warn(`\n⚠️  Atlas connection failed: ${err.message}\n⚡ Falling back to local MongoDB...`);
-    try {
-      const conn = await mongoose.connect('mongodb://127.0.0.1:27017/committee_db', {
-        serverSelectionTimeoutMS: 5000
-      });
-      console.log(`MongoDB Connected (Local Fallback): ${conn.connection.host}`);
-    } catch (localErr) {
-      console.error(`❌ Local MongoDB Connection Error: ${localErr.message}`);
-      process.exit(1);
-    }
+    console.error(`❌ MongoDB Connection Error: ${err.message}`);
+    throw err;
   }
 };
 

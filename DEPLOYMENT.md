@@ -34,7 +34,7 @@ Add this key in Vercel settings:
 
 ### Step 1: Initialize MongoDB Atlas
 1. Visit [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and register a free cluster.
-2. In **Network Access**, add `0.0.0.0/3` to authorize Render dynamic server IPs.
+2. In **Network Access**, add `0.0.0.0/0` (Allow Access from Anywhere) to authorize Render dynamic server IPs.
 3. In **Database Access**, create a user with a secure password.
 4. Click **Connect** ➔ **Drivers** to copy the Node.js connection string. Replace `<username>` and `<password>` inside the link.
 

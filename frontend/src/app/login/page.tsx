@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useToastStore } from "@/store/useToastStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Layers } from "lucide-react";
 
@@ -107,8 +108,14 @@ export default function Login() {
       >
         {/* Visual brand logo header */}
         <motion.div variants={itemVariants} className="text-center mb-8 space-y-2">
-          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-xl shadow-indigo-500/20 mb-3 animate-pulse">
-            <Layers size={26} />
+          <div className="relative inline-flex items-center justify-center h-16 w-16 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-white/15 shadow-2xl shadow-indigo-500/20 mb-3 group hover:border-indigo-500/30 transition-colors duration-300">
+            <Image
+              src="/logo.jpg"
+              alt="CommitteeMS Logo"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              priority
+            />
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
             Apex Committee Portal

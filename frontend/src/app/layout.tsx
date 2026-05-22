@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SocketProvider } from "@/context/SocketContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ToastContainer } from "@/components/ui/Toast";
+import { PWARegistration } from "@/components/PWARegistration";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -16,6 +17,12 @@ export const metadata: Metadata = {
   title: "CommitteeMS — Committee Management System",
   description: "A premium SaaS-grade Committee Management System built with Next.js and MERN stack.",
   keywords: ["committee", "management", "meetings", "tasks", "SaaS"],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "CommitteeMS",
+  },
 };
 
 export default function RootLayout({
@@ -40,6 +47,7 @@ export default function RootLayout({
             <AppLayout>{children}</AppLayout>
           </SocketProvider>
           <ToastContainer />
+          <PWARegistration />
         </ThemeProvider>
       </body>
     </html>

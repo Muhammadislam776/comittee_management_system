@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -145,9 +146,15 @@ function SidebarContent({
       {/* Logo */}
       <div className="flex items-center justify-between px-5 py-5 border-b border-white/20 dark:border-white/5">
         <Link href="/" className="flex items-center space-x-3 group">
-          <div className="relative h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-shadow">
-            <Sparkles className="h-5 w-5 text-white" />
-            <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-gray-900" />
+          <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 dark:border-white/10 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all duration-300">
+            <Image
+              src="/logo.jpg"
+              alt="CommitteeMS Logo"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-300"
+              priority
+            />
+            <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-gray-900 z-10" />
           </div>
           <div>
             <h1 className="text-[15px] font-bold gradient-text leading-tight tracking-tight">
