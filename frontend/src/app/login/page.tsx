@@ -45,21 +45,32 @@ export default function Login() {
     }
 
     setIsSubmitting(true);
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    // Normalize API base: ensure no trailing slash and that /api is present
+    const rawApi = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const trimmed = rawApi.replace(/\/+$/, "");
+    const apiBase = trimmed.endsWith('/api') ? trimmed : trimmed + '/api';
+
     try {
       const res = await fetch(`${apiBase}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || data.error || "Invalid credentials");
-      
-      login(data.token, data.user);
-      addToast(`Successfully logged in as ${data.user.name}!`, "success");
-      router.push("/");
+
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.msg || data.error || "Invalid credentials");
+
+        login(data.token, data.user);
+        addToast(`Successfully logged in as ${data.user.name}!`, "success");
+        router.push("/");
+      } else {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response (${res.status}): ${res.statusText}`);
+      }
     } catch (err: any) {
-      addToast(err.message, "error");
+      addToast(err.message || 'Login failed', "error");
     } finally {
       setIsSubmitting(false);
     }

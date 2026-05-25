@@ -50,20 +50,31 @@ export default function Register() {
     }
 
     setIsSubmitting(true);
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    // Normalize API base: ensure no trailing slash and that /api is present
+    const rawApi = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const trimmed = rawApi.replace(/\/+$/, "");
+    const apiBase = trimmed.endsWith('/api') ? trimmed : trimmed + '/api';
+
     try {
       const res = await fetch(`${apiBase}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password, role }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || data.error || "Registration failed");
-      
+
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.msg || data.error || "Registration failed");
+      } else {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response (${res.status}): ${res.statusText}`);
+      }
+
       addToast("Account created successfully! Please sign in with your credentials.", "success");
       router.push("/login");
     } catch (err: any) {
-      addToast(err.message, "error");
+      addToast(err.message || 'Registration failed', "error");
     } finally {
       setIsSubmitting(false);
     }
