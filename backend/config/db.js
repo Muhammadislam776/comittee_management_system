@@ -32,11 +32,12 @@ const connectDB = async () => {
     console.log(`🏠 Host: ${conn.connection.host}`);
     console.log(`📦 Database Name: ${conn.connection.name}`);
     
-    // Verify correct database
-    if (conn.connection.name !== 'committee_db') {
-      console.error(`\n❌ ERROR: Connected to "${conn.connection.name}" instead of "committee_db"`);
+    // Verify correct database (handle both "committee_db" and "/committee_db" formats)
+    const dbName = conn.connection.name.replace(/^\//, ''); // Remove leading slash if present
+    if (!dbName.includes('committee_db')) {
+      console.error(`\n❌ ERROR: Connected to "${dbName}" instead of "committee_db"`);
       console.error(`📝 Make sure MONGO_URI includes /committee_db`);
-      throw new Error(`Wrong database: ${conn.connection.name}. Expected: committee_db`);
+      throw new Error(`Wrong database: ${dbName}. Expected: committee_db`);
     }
     
     console.log(`✅ Database is CORRECT: committee_db`);
