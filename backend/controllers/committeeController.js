@@ -8,40 +8,49 @@ const asyncHandler = require('../utils/asyncHandler');
 exports.getCommittees = asyncHandler(async (req, res, next) => {
   const { search, page = 1, limit = 10 } = req.query;
 
-  // Search query setup
-  let query = {};
-  if (search) {
-    query = {
-      $or: [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ]
-    };
+  try {
+    console.log('📋 Fetching committees...', { userId: req.user._id, search, page, limit });
+
+    // Search query setup
+    let query = {};
+    if (search) {
+      query = {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
+
+    // Pagination logic
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const total = await Committee.countDocuments(query);
+    const committees = await Committee.find(query)
+      .populate('members', 'name email role')
+      .populate('head', 'name email role')
+      .skip(skip)
+      .limit(limitNum);
+
+    console.log('✅ Committees fetched:', { count: committees.length, total });
+
+    res.status(200).json({
+      success: true,
+      count: committees.length,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum)
+      },
+      data: committees
+    });
+  } catch (err) {
+    console.error('❌ Error fetching committees:', err.message);
+    throw err;
   }
-
-  // Pagination logic
-  const pageNum = parseInt(page, 10);
-  const limitNum = parseInt(limit, 10);
-  const skip = (pageNum - 1) * limitNum;
-
-  const total = await Committee.countDocuments(query);
-  const committees = await Committee.find(query)
-    .populate('members', 'name email role')
-    .populate('head', 'name email role')
-    .skip(skip)
-    .limit(limitNum);
-
-  res.status(200).json({
-    success: true,
-    count: committees.length,
-    pagination: {
-      total,
-      page: pageNum,
-      limit: limitNum,
-      pages: Math.ceil(total / limitNum)
-    },
-    data: committees
-  });
 });
 
 // @desc      Get single committee
