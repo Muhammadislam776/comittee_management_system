@@ -31,8 +31,17 @@ const sendTokenResponse = (user, statusCode, res) => {
 exports.register = asyncHandler(async (req, res, next) => {
   const { name, email, password, role } = req.body;
 
+  console.log('📝 Register Request:', { name, email, role });
+
+  // Validate input
+  if (!name || !email || !password) {
+    console.log('❌ Missing fields:', { name, email, password });
+    return next(new ErrorResponse('Please provide name, email and password', 400));
+  }
+
   let user = await User.findOne({ email });
   if (user) {
+    console.log('❌ User already exists:', email);
     return next(new ErrorResponse('User already exists', 400));
   }
 
@@ -44,11 +53,19 @@ exports.register = asyncHandler(async (req, res, next) => {
     role: role || 'member'
   });
 
+  console.log('🔐 Hashing password...');
   // Encrypt password
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(password, salt);
 
-  await user.save();
+  console.log('💾 Saving user to database...');
+  try {
+    await user.save();
+    console.log('✅ User saved successfully:', { id: user._id, email: user.email });
+  } catch (saveErr) {
+    console.log('❌ Error saving user:', saveErr.message);
+    throw saveErr;
+  }
 
   sendTokenResponse(user, 200, res);
 });

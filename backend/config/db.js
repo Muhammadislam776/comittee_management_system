@@ -13,15 +13,24 @@ const connectDB = async () => {
   }
 
   try {
-    console.log(`Attempting to connect to MongoDB...`);
+    console.log(`\n🔍 NODE_ENV: ${process.env.NODE_ENV}`);
+    console.log(`🔗 Attempting to connect to MongoDB...`);
+    console.log(`📍 Connection String: ${uri.substring(0, 50)}...`);
     
     // Set connection timeout lower to fail fast when the database is unreachable
     const conn = await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000 
     });
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    
+    console.log(`✅ MongoDB Connected Successfully!`);
+    console.log(`🏠 Host: ${conn.connection.host}`);
+    console.log(`📦 Database: ${conn.connection.name}`);
+    console.log(`📊 State: ${conn.connection.readyState} (1 = connected)\n`);
+    
   } catch (err) {
-    console.error(`❌ MongoDB Connection Error: ${err.message}`);
+    console.error(`\n❌ MongoDB Connection Failed!`);
+    console.error(`⚠️  Error: ${err.message}`);
+    console.error(`📍 Make sure MongoDB Atlas is accessible and credentials are correct\n`);
     throw err;
   }
 };
