@@ -9,23 +9,31 @@ const asyncHandler = require('../utils/asyncHandler');
 exports.getMeetings = asyncHandler(async (req, res) => {
   const { status, committee, from, to, search } = req.query;
 
-  const query = {};
-  if (status) query.status = status;
-  if (committee) query.committee = committee;
-  if (from || to) {
-    query.date = {};
-    if (from) query.date.$gte = new Date(from);
-    if (to) query.date.$lte = new Date(to);
+  try {
+    console.log('📅 Fetching meetings...', { userId: req.user._id, status, committee, search });
+
+    const query = {};
+    if (status) query.status = status;
+    if (committee) query.committee = committee;
+    if (from || to) {
+      query.date = {};
+      if (from) query.date.$gte = new Date(from);
+      if (to) query.date.$lte = new Date(to);
+    }
+    if (search) query.title = { $regex: search, $options: 'i' };
+
+    const meetings = await Meeting.find(query)
+      .populate('committee', 'name status')
+      .populate('createdBy', 'name email')
+      .populate('attendance.user', 'name email')
+      .sort({ date: 1 });
+
+    console.log('✅ Meetings fetched:', { count: meetings.length });
+    res.status(200).json({ success: true, count: meetings.length, data: meetings });
+  } catch (err) {
+    console.error('❌ Error fetching meetings:', err.message);
+    throw err;
   }
-  if (search) query.title = { $regex: search, $options: 'i' };
-
-  const meetings = await Meeting.find(query)
-    .populate('committee', 'name status')
-    .populate('createdBy', 'name email')
-    .populate('attendance.user', 'name email')
-    .sort({ date: 1 });
-
-  res.status(200).json({ success: true, count: meetings.length, data: meetings });
 });
 
 // @desc    Get single meeting

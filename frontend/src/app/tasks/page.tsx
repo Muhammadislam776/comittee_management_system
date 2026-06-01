@@ -89,9 +89,11 @@ export default function KanbanBoard() {
       const res = await axios.get(`${API}/tasks`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setTasks(res.data);
+      console.log('Tasks response:', res.data);
+      setTasks(res.data.data || res.data);
     } catch (err: any) {
-      addToast(err.response?.data?.message || "Failed to fetch tasks", "error");
+      console.error('Failed to fetch tasks:', err.message);
+      addToast(err.response?.data?.error || "Failed to fetch tasks", "error");
     } finally {
       setLoading(false);
     }

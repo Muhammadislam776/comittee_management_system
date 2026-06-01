@@ -6,13 +6,21 @@ const asyncHandler = require('../utils/asyncHandler');
 // @route     GET /api/tasks
 // @access    Private
 exports.getTasks = asyncHandler(async (req, res, next) => {
-  const tasks = await Task.find()
-    .populate('assignedTo', 'name email role')
-    .populate('meeting', 'title date')
-    .populate('comments.user', 'name email role')
-    .sort({ createdAt: -1 });
+  try {
+    console.log('📋 Fetching tasks...', { userId: req.user._id });
 
-  res.status(200).json(tasks);
+    const tasks = await Task.find()
+      .populate('assignedTo', 'name email role')
+      .populate('meeting', 'title date')
+      .populate('comments.user', 'name email role')
+      .sort({ createdAt: -1 });
+
+    console.log('✅ Tasks fetched:', { count: tasks.length });
+    res.status(200).json({ success: true, count: tasks.length, data: tasks });
+  } catch (err) {
+    console.error('❌ Error fetching tasks:', err.message);
+    throw err;
+  }
 });
 
 // @desc      Get single task
