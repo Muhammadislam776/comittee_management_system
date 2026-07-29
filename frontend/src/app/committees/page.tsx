@@ -10,6 +10,7 @@ import {
   AlertTriangle, Filter, Tag, Shield,
 } from "lucide-react";
 import { useToastStore } from "@/store/useToastStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -24,6 +25,9 @@ interface Committee {
   category: string; head?: UserRef; members: UserRef[];
   status: Status; createdAt: string;
 }
+
+// ... existing helper components ...
+
 
 const statusStyle: Record<string, string> = {
   Active: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
@@ -103,23 +107,24 @@ function CommitteeForm({
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="Category">
-          <select className={cn(inputCls, "dark:bg-[#0f1120]")} value={category} onChange={e => setCategory(e.target.value)}>
-            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          <select className={cn(inputCls, "bg-slate-900 text-white border border-white/20")} value={category} onChange={e => setCategory(e.target.value)}>
+            {CATEGORIES.map(c => <option key={c} value={c} className="bg-slate-900 text-white">{c}</option>)}
           </select>
         </Field>
         <Field label="Status">
-          <select className={cn(inputCls, "dark:bg-[#0f1120]")} value={status} onChange={e => setStatus(e.target.value as Status)}>
-            {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+          <select className={cn(inputCls, "bg-slate-900 text-white border border-white/20")} value={status} onChange={e => setStatus(e.target.value as Status)}>
+            {STATUSES.map(s => <option key={s} value={s} className="bg-slate-900 text-white">{s}</option>)}
           </select>
         </Field>
       </div>
 
       <Field label="Committee Head">
-        <select className={cn(inputCls, "dark:bg-[#0f1120]")} value={headId} onChange={e => setHeadId(e.target.value)}>
-          <option value="">— No head assigned —</option>
-          {users.map(u => <option key={u._id} value={u._id}>{u.name} ({u.role})</option>)}
+        <select className={cn(inputCls, "bg-slate-900 text-white border border-white/20")} value={headId} onChange={e => setHeadId(e.target.value)}>
+          <option value="" className="bg-slate-900 text-white">— No head assigned —</option>
+          {users.map(u => <option key={u._id} value={u._id} className="bg-slate-900 text-white">{u.name} ({u.role})</option>)}
         </select>
       </Field>
+
 
       <Field label={`Members (${memberIds.length} selected)`}>
         <div className="border border-white/10 rounded-xl p-2 max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5 bg-black/5 dark:bg-white/3">
@@ -201,6 +206,9 @@ function DeleteModal({ name, onConfirm, onClose, loading }: { name: string; onCo
 
 // ─── Main Page ────────────────────────────────────────────────────────────
 export default function CommitteesPage() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
+
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [users, setUsers] = useState<UserRef[]>([]);
   const [loading, setLoading] = useState(true);
@@ -214,6 +222,7 @@ export default function CommitteesPage() {
   const [selected, setSelected] = useState<Committee | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { addToast } = useToastStore();
+
 
   const fetchCommittees = useCallback(async () => {
     setLoading(true);
@@ -277,14 +286,19 @@ export default function CommitteesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight gradient-text">Committee Directory</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Manage committees, members, and heads across your organization.</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {isAdmin ? "Manage committees, members, and heads across your organization." : "View active committees and member rosters."}
+          </p>
         </div>
-        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-          onClick={() => setModal("create")}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:opacity-90 transition-all">
-          <Plus size={16} /> Create Committee
-        </motion.button>
+        {isAdmin && (
+          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+            onClick={() => setModal("create")}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:opacity-90 transition-all">
+            <Plus size={16} /> Create Committee
+          </motion.button>
+        )}
       </div>
+
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -297,10 +311,11 @@ export default function CommitteesPage() {
         <div className="flex items-center gap-2">
           <Filter size={14} className="text-muted-foreground" />
           <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
-            className="py-2.5 px-3 text-sm rounded-xl bg-black/5 dark:bg-white/5 border border-white/20 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 dark:bg-[#0a0c1e]">
-            <option value="">All Statuses</option>
-            {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+            className="py-2.5 px-3 text-sm rounded-xl bg-slate-900 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-500/40">
+            <option value="" className="bg-slate-900 text-white">All Statuses</option>
+            {STATUSES.map(s => <option key={s} value={s} className="bg-slate-900 text-white">{s}</option>)}
           </select>
+
         </div>
         <span className="self-center text-sm text-muted-foreground ml-auto">
           <span className="font-semibold text-foreground">{total}</span> total
@@ -376,16 +391,21 @@ export default function CommitteesPage() {
                           className="p-1.5 rounded-lg hover:bg-indigo-500/10 text-muted-foreground hover:text-indigo-400 transition-all" title="View">
                           <Eye size={15} />
                         </Link>
-                        <button onClick={() => openEdit(c)}
-                          className="p-1.5 rounded-lg hover:bg-blue-500/10 text-muted-foreground hover:text-blue-400 transition-all" title="Edit">
-                          <Edit2 size={15} />
-                        </button>
-                        <button onClick={() => { setSelected(c); setModal("delete"); }}
-                          className="p-1.5 rounded-lg hover:bg-rose-500/10 text-muted-foreground hover:text-rose-400 transition-all" title="Delete">
-                          <Trash2 size={15} />
-                        </button>
+                        {isAdmin && (
+                          <>
+                            <button onClick={() => openEdit(c)}
+                              className="p-1.5 rounded-lg hover:bg-blue-500/10 text-muted-foreground hover:text-blue-400 transition-all" title="Edit">
+                              <Edit2 size={15} />
+                            </button>
+                            <button onClick={() => { setSelected(c); setModal("delete"); }}
+                              className="p-1.5 rounded-lg hover:bg-rose-500/10 text-muted-foreground hover:text-rose-400 transition-all" title="Delete">
+                              <Trash2 size={15} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
+
                   </motion.tr>
                 ))}
               </tbody>

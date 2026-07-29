@@ -8,9 +8,11 @@ import {
   Trash2, User, Clock, AlertTriangle, ArrowRight, Eye, Send, FileText
 } from "lucide-react";
 import { useToastStore } from "@/store/useToastStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useSocket } from "@/context/SocketContext";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 
 interface User {
   id: string;
@@ -54,10 +56,14 @@ interface Task {
 }
 
 export default function KanbanBoard() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
+
   
   // Drag state
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
@@ -108,10 +114,13 @@ export default function KanbanBoard() {
       setUsers(usersRes.data.data);
 
       const meetingsRes = await axios.get(`${API}/meetings`, { headers });
-      setMeetings(meetingsRes.data);
+      const mList = Array.isArray(meetingsRes.data) ? meetingsRes.data : (meetingsRes.data?.data || []);
+      setMeetings(mList);
     } catch (err: any) {
       console.error("Failed to load selectors data", err);
+      setMeetings([]);
     }
+
   };
 
   useEffect(() => {
@@ -322,17 +331,20 @@ export default function KanbanBoard() {
             Task Kanban Board
           </h1>
           <p className="text-muted-foreground mt-1">
-            Organize priorities, schedule tasks, and track statuses in a beautiful Trello workspace.
+            {isAdmin ? "Organize priorities, schedule tasks, and track statuses in a beautiful Trello workspace." : "View active tasks, priorities, and progress status across your committee."}
           </p>
         </div>
-        <button
-          onClick={() => { resetForm(); setIsCreateOpen(true); }}
-          className="flex items-center px-4 py-2.5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white rounded-xl shadow-lg shadow-yellow-500/20 transition-all font-medium"
-        >
-          <Plus size={18} className="mr-2" />
-          Create Task
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => { resetForm(); setIsCreateOpen(true); }}
+            className="flex items-center px-4 py-2.5 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white rounded-xl shadow-lg shadow-yellow-500/20 transition-all font-medium"
+          >
+            <Plus size={18} className="mr-2" />
+            Create Task
+          </button>
+        )}
       </div>
+
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -549,11 +561,12 @@ export default function KanbanBoard() {
                       className="w-full bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 text-white text-sm"
                     >
                       <option value="" className="bg-slate-950">No Meeting (Optional)</option>
-                      {meetings.map(m => (
+                      {(Array.isArray(meetings) ? meetings : []).map((m: any) => (
                         <option key={m._id} value={m._id} className="bg-slate-950">
                           {m.title}
                         </option>
                       ))}
+
                     </select>
                   </div>
 

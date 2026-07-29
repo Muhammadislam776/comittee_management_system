@@ -4,11 +4,6 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  // Log to console for dev
-  console.log(`\n❌ ERROR at ${req.method} ${req.path}`);
-  console.log(`📝 Message: ${err.message}`);
-  if (err.stack) console.log(`📍 Stack: ${err.stack}\n`);
-
   // Mongoose bad ObjectId
   if (err.name === 'CastError') {
     const message = `Resource not found with id of ${err.value}`;
@@ -30,8 +25,15 @@ const errorHandler = (err, req, res, next) => {
   const statusCode = error.statusCode || 500;
   const errorMessage = error.message || 'Server Error';
 
-  console.log(`📤 Response Status: ${statusCode}`);
-  console.log(`📤 Response Message: ${errorMessage}\n`);
+  if (statusCode >= 500) {
+    console.log(`\n❌ ERROR at ${req.method} ${req.path}`);
+    console.log(`📝 Message: ${err.message}`);
+    if (err.stack) console.log(`📍 Stack: ${err.stack}\n`);
+    console.log(`📤 Response Status: ${statusCode}`);
+    console.log(`📤 Response Message: ${errorMessage}\n`);
+  } else {
+    console.warn(`⚠️ ${req.method} ${req.path} -> ${statusCode} ${errorMessage}`);
+  }
 
   res.status(statusCode).json({
     success: false,

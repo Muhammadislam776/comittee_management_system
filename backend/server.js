@@ -84,6 +84,8 @@ const polls = require('./routes/polls');
 const chat = require('./routes/chat');
 const documents = require('./routes/documents');
 const analytics = require('./routes/analytics');
+const notifications = require('./routes/notifications');
+const logs = require('./routes/logs');
 const ai = require('./routes/ai');
 const health = require('./routes/health');
 
@@ -96,8 +98,11 @@ app.use('/api/polls', polls);
 app.use('/api/chat', chat);
 app.use('/api/documents', documents);
 app.use('/api/analytics', analytics);
+app.use('/api/notifications', notifications);
+app.use('/api/logs', logs);
 app.use('/api/ai', ai);
 app.use('/api/health', health);
+
 
 // Error handler middleware must be after routes
 app.use(errorHandler);

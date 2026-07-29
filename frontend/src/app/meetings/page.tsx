@@ -9,7 +9,9 @@ import {
   Plus, X, Search, Filter, Trash2, Edit2, MapPin
 } from "lucide-react";
 import { useToastStore } from "@/store/useToastStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
+
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const STATUSES = ["Scheduled", "In Progress", "Completed", "Cancelled", "Postponed"] as const;
@@ -89,17 +91,18 @@ function MeetingModal({ meeting, committees, onClose, onSave }: { meeting?: Meet
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[11px] font-bold uppercase text-muted-foreground">Committee</label>
-              <select className={cn(inputCls, "dark:bg-[#0f1120]")} value={committee} onChange={e => setCommittee(e.target.value)} required disabled={!!meeting}>
-                <option value="">Select Committee</option>
-                {committees.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+              <select className={cn(inputCls, "bg-slate-900 text-white border border-white/20")} value={committee} onChange={e => setCommittee(e.target.value)} required disabled={!!meeting}>
+                <option value="" className="bg-slate-900 text-white">Select Committee</option>
+                {committees.map(c => <option key={c._id} value={c._id} className="bg-slate-900 text-white">{c.name}</option>)}
               </select>
             </div>
             <div>
               <label className="text-[11px] font-bold uppercase text-muted-foreground">Status</label>
-              <select className={cn(inputCls, "dark:bg-[#0f1120]")} value={status} onChange={e => setStatus(e.target.value as Status)}>
-                {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+              <select className={cn(inputCls, "bg-slate-900 text-white border border-white/20")} value={status} onChange={e => setStatus(e.target.value as Status)}>
+                {STATUSES.map(s => <option key={s} value={s} className="bg-slate-900 text-white">{s}</option>)}
               </select>
             </div>
+
           </div>
           <div>
             <label className="text-[11px] font-bold uppercase text-muted-foreground">Location / Link</label>
@@ -122,6 +125,8 @@ function MeetingModal({ meeting, committees, onClose, onSave }: { meeting?: Meet
 }
 
 export default function MeetingsPage() {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [committees, setCommittees] = useState<CommitteeRef[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,13 +162,17 @@ export default function MeetingsPage() {
     <div className="space-y-6 pb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight gradient-text">Meetings</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Schedule, track attendance, and manage minutes.</p>
+          <h1 className="text-2xl font-extrabold tracking-tight gradient-text">Meetings Schedule</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {isAdmin ? "Schedule, track attendance, and manage meeting minutes." : "View upcoming scheduled meetings, agenda topics, and locations."}
+          </p>
         </div>
-        <button onClick={() => setModal("create")}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-all">
-          <Plus size={16} /> Schedule Meeting
-        </button>
+        {isAdmin && (
+          <button onClick={() => setModal("create")}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-all">
+            <Plus size={16} /> Schedule Meeting
+          </button>
+        )}
       </div>
 
       <div className="glass-card overflow-hidden">
@@ -198,11 +207,16 @@ export default function MeetingsPage() {
                       <p className="text-[10px] text-muted-foreground mt-1.5">Attending: {m.attendance.filter(a => a.status === 'Present').length} / {m.attendance.length}</p>
                     </td>
                     <td className="py-4 px-5">
-                      <div className="flex gap-2">
-                        <button onClick={() => { setSelected(m); setModal("edit"); }} className="p-1.5 hover:bg-white/10 rounded-lg text-muted-foreground hover:text-blue-400"><Edit2 size={15} /></button>
-                        <button onClick={() => handleDelete(m._id)} className="p-1.5 hover:bg-white/10 rounded-lg text-muted-foreground hover:text-rose-400"><Trash2 size={15} /></button>
-                      </div>
+                      {isAdmin ? (
+                        <div className="flex gap-2">
+                          <button onClick={() => { setSelected(m); setModal("edit"); }} className="p-1.5 hover:bg-white/10 rounded-lg text-muted-foreground hover:text-blue-400" title="Edit"><Edit2 size={15} /></button>
+                          <button onClick={() => handleDelete(m._id)} className="p-1.5 hover:bg-white/10 rounded-lg text-muted-foreground hover:text-rose-400" title="Delete"><Trash2 size={15} /></button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">View Only</span>
+                      )}
                     </td>
+
                   </motion.tr>
                 ))}
               </tbody>

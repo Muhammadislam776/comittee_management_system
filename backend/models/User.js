@@ -6,6 +6,18 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'committee_head', 'member'], default: 'member' },
+  avatar: { type: String, default: '' },
+  department: { type: String, default: 'General' },
+  designation: { type: String, default: 'Committee Member' },
+  skills: [{ type: String }],
+  phone: { type: String, default: '' },
+  bio: { type: String, default: '' },
+  notificationSettings: {
+    email: { type: Boolean, default: true },
+    push: { type: Boolean, default: true },
+    meetingReminders: { type: Boolean, default: true },
+    taskAssignments: { type: Boolean, default: true }
+  },
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, { timestamps: true });
@@ -28,3 +40,4 @@ UserSchema.methods.getResetPasswordToken = function() {
 };
 
 module.exports = mongoose.model('User', UserSchema);
+

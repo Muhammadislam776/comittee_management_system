@@ -20,34 +20,142 @@ import {
   MessageSquare,
   FileText,
   TrendingUp,
+  User,
+  Bell
 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLayoutStore } from "@/store/useLayoutStore";
 import { motion, AnimatePresence } from "framer-motion";
 
-const navItems = [
-  {
-    label: "Main",
-    items: [
-      { name: "Dashboard", href: "/", icon: LayoutDashboard, badge: null },
-      { name: "Committees", href: "/committees", icon: Users, badge: null },
-      { name: "Meetings", href: "/meetings", icon: Calendar, badge: "3" },
-      { name: "Tasks", href: "/tasks", icon: CheckSquare, badge: "5" },
-      { name: "Polls", href: "/polls", icon: BarChart2, badge: null },
-      { name: "Chat", href: "/chat", icon: MessageSquare, badge: null },
-      { name: "Documents", href: "/documents", icon: FileText, badge: null },
-      { name: "Analytics", href: "/analytics", icon: TrendingUp, badge: null },
-      { name: "AI Assistant", href: "/ai", icon: Sparkles, badge: "PRO" },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { name: "Settings", href: "/settings", icon: Settings, badge: null },
-      { name: "Help", href: "/help", icon: HelpCircle, badge: null },
-    ],
-  },
-];
+const getNavItems = (role: string) => {
+  if (role === "admin") {
+    return [
+      {
+        label: "Dashboard",
+        items: [
+          { name: "Dashboard", href: "/", icon: LayoutDashboard, badge: null },
+        ]
+      },
+      {
+        label: "Management",
+        items: [
+          { name: "Users", href: "/users", icon: Users, badge: null },
+          { name: "Committees", href: "/committees", icon: Shield, badge: null },
+          { name: "Meetings", href: "/meetings", icon: Calendar, badge: null },
+          { name: "Tasks", href: "/tasks", icon: CheckSquare, badge: null },
+          { name: "Voting Polls", href: "/polls", icon: TrendingUp, badge: null },
+          { name: "Group Chat", href: "/chat", icon: MessageSquare, badge: null },
+          { name: "Reports", href: "/reports", icon: BarChart2, badge: null },
+        ]
+      },
+      {
+        label: "System",
+        items: [
+          { name: "Finance", href: "/finance", icon: TrendingUp, badge: null },
+          { name: "Documents", href: "/documents", icon: FileText, badge: null },
+          { name: "Announcements", href: "/announcements", icon: Bell, badge: null },
+          { name: "System Settings", href: "/settings", icon: Settings, badge: null },
+          { name: "Audit Logs", href: "/audit-logs", icon: FileText, badge: null },
+        ]
+      }
+    ];
+  } else if (role === "committee_head") {
+    return [
+      {
+        label: "Dashboard",
+        items: [
+          { name: "Dashboard", href: "/", icon: LayoutDashboard, badge: null },
+        ]
+      },
+      {
+        label: "My Committee",
+        items: [
+          { name: "My Committee", href: "/committees", icon: Shield, badge: null },
+          { name: "Meeting Schedule", href: "/meetings", icon: Calendar, badge: null },
+          { name: "Tasks & Board", href: "/tasks", icon: CheckSquare, badge: null },
+          { name: "Voting Sessions", href: "/polls", icon: TrendingUp, badge: null },
+          { name: "Committee Chat", href: "/chat", icon: MessageSquare, badge: null },
+          { name: "Committee Reports", href: "/reports", icon: BarChart2, badge: null },
+          { name: "Documents Hub", href: "/documents", icon: FileText, badge: null },
+          { name: "Announcements", href: "/announcements", icon: Bell, badge: null },
+        ]
+      },
+      {
+        label: "Account",
+        items: [
+          { name: "My Profile", href: "/profile", icon: User, badge: null },
+          { name: "Settings", href: "/settings", icon: Settings, badge: null },
+        ]
+      }
+    ];
+  } else {
+    // Member / Staff
+    return [
+      {
+        label: "Dashboard",
+        items: [
+          { name: "Dashboard", href: "/", icon: LayoutDashboard, badge: null },
+          { name: "My Tasks", href: "/tasks", icon: CheckSquare, badge: null },
+          { name: "Meeting Schedule", href: "/meetings", icon: Calendar, badge: null },
+        ]
+      },
+      {
+        label: "My Workspace",
+        items: [
+          { name: "Voting Polls", href: "/polls", icon: TrendingUp, badge: null },
+          { name: "Team Chat", href: "/chat", icon: MessageSquare, badge: null },
+          { name: "Announcements", href: "/announcements", icon: Bell, badge: null },
+          { name: "Documents", href: "/documents", icon: FileText, badge: null },
+        ]
+      },
+      {
+        label: "Account",
+        items: [
+          { name: "My Profile", href: "/profile", icon: User, badge: null },
+          { name: "Settings", href: "/settings", icon: Settings, badge: null },
+        ]
+      }
+    ];
+  }
+};
+
+
+const getThemeStyles = (role: string) => {
+  if (role === "admin") {
+    return {
+      sidebarBg: "bg-[#2D1B69]",
+      textNormal: "text-purple-200 hover:text-white hover:bg-white/10",
+      textActive: "text-white bg-[#432C9A]",
+      iconNormal: "text-purple-300",
+      iconActive: "text-white",
+      logoBg: "bg-purple-600",
+      label: "text-purple-300/70",
+      border: "border-purple-800/50"
+    };
+  } else if (role === "committee_head") {
+    return {
+      sidebarBg: "bg-[#1E3A5F]",
+      textNormal: "text-blue-200 hover:text-white hover:bg-white/10",
+      textActive: "text-white bg-[#2A5288]",
+      iconNormal: "text-blue-300",
+      iconActive: "text-white",
+      logoBg: "bg-blue-500",
+      label: "text-blue-300/70",
+      border: "border-blue-800/50"
+    };
+  } else {
+    return {
+      sidebarBg: "bg-[#1B4D3E]",
+      textNormal: "text-green-200 hover:text-white hover:bg-white/10",
+      textActive: "text-white bg-[#266B56]",
+      iconNormal: "text-green-300",
+      iconActive: "text-white",
+      logoBg: "bg-green-600",
+      label: "text-green-300/70",
+      border: "border-green-800/50"
+    };
+  }
+};
 
 const sidebarVariants = {
   hidden: { x: -280, opacity: 0 },
@@ -72,6 +180,7 @@ export function Sidebar() {
   const { user } = useAuthStore();
   const { sidebarOpen, setSidebarOpen } = useLayoutStore();
 
+  const role = user?.role || "staff";
   const initials = user?.name
     ? user.name
         .split(" ")
@@ -83,18 +192,22 @@ export function Sidebar() {
 
   let itemIndex = 0;
 
+  const themeStyles = getThemeStyles(role);
+
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 z-50 flex-col sidebar-glass"
+      <aside className={cn("hidden lg:flex fixed inset-y-0 left-0 z-50 flex-col shadow-xl", themeStyles.sidebarBg)}
         style={{ width: "var(--sidebar-width)" }}>
         <SidebarContent
           pathname={pathname}
           user={user}
+          role={role}
           initials={initials}
           setSidebarOpen={setSidebarOpen}
           isDesktop
           itemIndex={itemIndex}
+          themeStyles={themeStyles}
         />
       </aside>
 
@@ -106,16 +219,18 @@ export function Sidebar() {
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="lg:hidden fixed inset-y-0 left-0 z-50 flex flex-col sidebar-glass"
+            className={cn("lg:hidden fixed inset-y-0 left-0 z-50 flex flex-col shadow-2xl", themeStyles.sidebarBg)}
             style={{ width: "var(--sidebar-width)" }}
           >
             <SidebarContent
               pathname={pathname}
               user={user}
+              role={role}
               initials={initials}
               setSidebarOpen={setSidebarOpen}
               isDesktop={false}
               itemIndex={itemIndex}
+              themeStyles={themeStyles}
             />
           </motion.aside>
         )}
@@ -127,48 +242,46 @@ export function Sidebar() {
 function SidebarContent({
   pathname,
   user,
+  role,
   initials,
   setSidebarOpen,
   isDesktop,
   itemIndex,
+  themeStyles
 }: {
   pathname: string;
   user: any;
+  role: string;
   initials: string;
   setSidebarOpen: (v: boolean) => void;
   isDesktop: boolean;
   itemIndex: number;
+  themeStyles: any;
 }) {
   let idx = 0;
+  const navItems = getNavItems(role);
 
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center justify-between px-5 py-5 border-b border-white/20 dark:border-white/5">
+      <div className={cn("flex items-center justify-between px-5 py-5 border-b", themeStyles.border)}>
         <Link href="/" className="flex items-center space-x-3 group">
-          <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 dark:border-white/10 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all duration-300">
-            <Image
-              src="/logo.jpg"
-              alt="CommitteeMS Logo"
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-300"
-              priority
-            />
-            <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-gray-900 z-10" />
+          <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center text-white font-bold text-lg", themeStyles.logoBg)}>
+            C
           </div>
           <div>
-            <h1 className="text-[15px] font-bold gradient-text leading-tight tracking-tight">
-              CommitteeMS
+            <h1 className="text-[14px] font-bold text-white leading-tight tracking-tight">
+              Committee
             </h1>
-            <p className="text-[10px] text-muted-foreground font-medium">
-              Management Suite
+            <p className="text-[11px] text-white/70 font-medium leading-tight">
+              Management System
             </p>
           </div>
         </Link>
         {!isDesktop && (
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-muted-foreground transition-colors"
+            className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 transition-colors"
           >
             <X size={18} />
           </button>
@@ -179,10 +292,10 @@ function SidebarContent({
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {navItems.map((group) => (
           <div key={group.label}>
-            <p className="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+            <p className={cn("px-3 mb-2 text-[10px] font-bold uppercase tracking-widest", themeStyles.label)}>
               {group.label}
             </p>
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const isActive =
@@ -202,30 +315,12 @@ function SidebarContent({
                       href={item.href}
                       onClick={() => !isDesktop && setSidebarOpen(false)}
                       className={cn(
-                        "relative flex items-center justify-between px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-all duration-200 group",
-                        isActive
-                          ? "nav-active-pill text-indigo-600 dark:text-indigo-400"
-                          : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5"
+                        "relative flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-200 group",
+                        isActive ? themeStyles.textActive : themeStyles.textNormal
                       )}
                     >
                       <div className="flex items-center space-x-3">
-                        {isActive && (
-                          <motion.div
-                            layoutId="sidebar-active-bg"
-                            className="absolute inset-0 rounded-xl nav-active-pill"
-                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                          />
-                        )}
-                        <div
-                          className={cn(
-                            "relative z-10 p-1.5 rounded-lg transition-all duration-200",
-                            isActive
-                              ? "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400"
-                              : "text-muted-foreground group-hover:text-foreground group-hover:bg-black/5 dark:group-hover:bg-white/5"
-                          )}
-                        >
-                          <Icon size={16} />
-                        </div>
+                        <Icon size={16} className={isActive ? themeStyles.iconActive : themeStyles.iconNormal} />
                         <span className="relative z-10">{item.name}</span>
                       </div>
                       <div className="flex items-center space-x-1.5 relative z-10">
@@ -234,18 +329,12 @@ function SidebarContent({
                             className={cn(
                               "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
                               isActive
-                                ? "bg-indigo-500 text-white"
-                                : "bg-black/8 dark:bg-white/8 text-muted-foreground"
+                                ? "bg-white/20 text-white"
+                                : "bg-white/10 text-white/70"
                             )}
                           >
                             {item.badge}
                           </span>
-                        )}
-                        {isActive && (
-                          <ChevronRight
-                            size={12}
-                            className="text-indigo-400 opacity-60"
-                          />
                         )}
                       </div>
                     </Link>
@@ -257,48 +346,26 @@ function SidebarContent({
         ))}
       </nav>
 
-      {/* Pro Upgrade Banner */}
-      <div className="px-3 mb-3">
-        <div className="relative rounded-xl overflow-hidden p-3.5 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 dark:border-indigo-500/15">
-          <div className="flex items-start space-x-3">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30">
-              <Zap size={14} className="text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-bold text-foreground">Upgrade to Pro</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
-                Unlock advanced analytics & unlimited committees
-              </p>
-              <Link href="/upgrade" onClick={() => !isDesktop && setSidebarOpen(false)}
-                className="inline-block mt-2 text-[10px] font-semibold px-3 py-1 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:opacity-90 transition-opacity text-center">
-                Upgrade Now →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* User Footer */}
-      <div className="px-3 pb-4 border-t border-white/20 dark:border-white/5 pt-3">
-        <div className="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+      <div className={cn("px-3 pb-4 border-t pt-3", themeStyles.border)}>
+        <div className="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
           <div className="relative flex-shrink-0">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+            <div className={cn("h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md", themeStyles.logoBg)}>
               {initials}
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-white dark:border-gray-900" />
+            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-white z-10" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[12.5px] font-semibold truncate leading-tight">
+            <p className="text-[12.5px] font-semibold text-white truncate leading-tight">
               {user?.name || "User"}
             </p>
-            <p className="text-[10px] text-muted-foreground truncate leading-tight flex items-center space-x-1">
-              <Shield size={9} className="text-indigo-400" />
-              <span className="capitalize">{user?.role || "Member"}</span>
+            <p className="text-[10px] text-white/70 truncate leading-tight flex items-center space-x-1">
+              <span className="capitalize">{user?.role || "Staff"}</span>
             </p>
           </div>
-          <ChevronRight size={14} className="text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
         </div>
       </div>
     </div>
   );
 }
+

@@ -122,13 +122,20 @@ export default function PollsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight gradient-text">Voting & Decisions</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Participate in anonymous polls and view real-time analytics.</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {user?.role === "member"
+              ? "Cast your vote on active committee decisions & view real-time results."
+              : "Participate in anonymous polls, create voting sessions, and view real-time analytics."}
+          </p>
         </div>
-        <button onClick={() => setIsCreateOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all">
-          <Plus size={16} /> Create Poll
-        </button>
+        {(user?.role === "admin" || user?.role === "committee_head") && (
+          <button onClick={() => setIsCreateOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all">
+            <Plus size={16} /> Create Poll
+          </button>
+        )}
       </div>
+
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-3">

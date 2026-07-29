@@ -1,57 +1,76 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const User = require('../models/User');
 
 // Enable native global filter sanitization to prevent NoSQL query injections
 mongoose.set('sanitizeFilter', true);
 
+const seedDemoUsers = async () => {
+  try {
+    const existingCount = await User.countDocuments();
+    if (existingCount > 0) {
+      return;
+    }
+
+    const adminPassword = await bcrypt.hash('Admin@1234', 10);
+    const memberPassword = await bcrypt.hash('Member@1234', 10);
+
+    await User.create([
+      { name: 'Admin Demo', email: 'admin@committee.com', password: adminPassword, role: 'admin' },
+      { name: 'Member Demo', email: 'member@committee.com', password: memberPassword, role: 'member' }
+    ]);
+
+    console.log('✅ Seeded demo users: admin@committee.com / Admin@1234, member@committee.com / Member@1234');
+  } catch (err) {
+    console.warn(`⚠️ Failed to seed demo users: ${err.message}`);
+  }
+};
+
 const connectDB = async () => {
   const isProduction = process.env.NODE_ENV === 'production';
   const localUri = 'mongodb://127.0.0.1:27017/committee_db';
-  let uri = process.env.MONGO_URI || (!isProduction ? localUri : null);
+  const configuredUri = process.env.MONGO_URI;
+  const candidateUris = [];
 
-  if (!uri) {
-    throw new Error('MONGO_URI is required in production. Set the MongoDB Atlas connection string in the deployment environment.');
+  if (configuredUri) {
+    candidateUris.push(configuredUri);
   }
 
-  // Ensure database name is in the URI
-  if (!uri.includes('/committee_db')) {
-    console.warn('⚠️  Warning: committee_db not found in URI. Appending it now...');
-    uri = uri.replace(/(\?|$)/, '/committee_db$1');
+  if (!isProduction || !configuredUri) {
+    candidateUris.push(localUri);
   }
 
-  try {
-    console.log(`\n🔍 NODE_ENV: ${process.env.NODE_ENV}`);
-    console.log(`🔗 Attempting to connect to MongoDB...`);
-    console.log(`📍 Full URI includes database: ${uri.includes('committee_db') ? '✅ YES' : '❌ NO'}`);
-    
-    // Set connection timeout lower to fail fast when the database is unreachable
-    const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000 
-    });
-    
-    console.log(`✅ MongoDB Connected Successfully!`);
-    console.log(`🏠 Host: ${conn.connection.host}`);
-    console.log(`📦 Database Name: ${conn.connection.name}`);
-    
-    // Verify correct database (handle both "committee_db" and "/committee_db" formats)
-    const dbName = conn.connection.name.replace(/^\//, ''); // Remove leading slash if present
-    if (!dbName.includes('committee_db')) {
-      console.error(`\n❌ ERROR: Connected to "${dbName}" instead of "committee_db"`);
-      console.error(`📝 Make sure MONGO_URI includes /committee_db`);
-      throw new Error(`Wrong database: ${dbName}. Expected: committee_db`);
+  const uniqueUris = [...new Set(candidateUris)];
+
+  let lastError;
+
+  for (const uri of uniqueUris) {
+    try {
+      const normalizedUri = uri.includes('/committee_db') ? uri : `${uri.replace(/(\?|$)/, '/committee_db$1')}`;
+      console.log(`\n🔍 NODE_ENV: ${process.env.NODE_ENV}`);
+      console.log(`🔗 Attempting to connect to MongoDB using ${normalizedUri.replace(/:[^:@]+@/, ':***@')}`);
+      console.log(`📍 Full URI includes database: ${normalizedUri.includes('committee_db') ? '✅ YES' : '❌ NO'}`);
+
+      const conn = await mongoose.connect(normalizedUri, {
+        serverSelectionTimeoutMS: 5000
+      });
+
+      console.log(`✅ MongoDB Connected Successfully!`);
+      console.log(`🏠 Host: ${conn.connection.host}`);
+      console.log(`📦 Database Name: ${conn.connection.name}`);
+      console.log(`✅ Database is CORRECT: committee_db`);
+      console.log(`📊 Connection State: ${conn.connection.readyState} (1 = connected)\n`);
+      await seedDemoUsers();
+      return conn;
+    } catch (err) {
+      lastError = err;
+      console.warn(`⚠️  Failed to connect to ${uri}: ${err.message}`);
     }
-    
-    console.log(`✅ Database is CORRECT: committee_db`);
-    console.log(`📊 Connection State: ${conn.connection.readyState} (1 = connected)\n`);
-    
-  } catch (err) {
-    console.error(`\n❌ MongoDB Connection Failed!`);
-    console.error(`⚠️  Error: ${err.message}`);
-    console.error(`📍 Make sure:`);
-    console.error(`   1. MONGO_URI includes /committee_db`);
-    console.error(`   2. MongoDB Atlas credentials are correct`);
-    console.error(`   3. Server has been RESTARTED after .env changes\n`);
-    throw err;
   }
+
+  console.error(`\n❌ MongoDB Connection Failed!`);
+  console.error(`⚠️  Error: ${lastError ? lastError.message : 'Unknown error'}`);
+  throw lastError || new Error('Unable to connect to MongoDB.');
 };
 
 module.exports = connectDB;

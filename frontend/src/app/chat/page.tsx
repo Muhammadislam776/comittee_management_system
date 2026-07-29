@@ -35,21 +35,47 @@ export default function ChatPage() {
     setLoadingRooms(true);
     try {
       const res = await axios.get(`${API}/committees`, { headers: authHeader() });
-      const committees = res.data.data.map((c: any) => ({
-        id: c._id,
-        name: c.name,
-        isCommittee: true
-      }));
-      setRooms([
-        { id: "general", name: "General Workspace", isCommittee: false },
-        ...committees
-      ]);
-      setActiveRoom({ id: "general", name: "General Workspace", isCommittee: false });
+      const committeesData = res.data.data || [];
+
+      let formattedRooms: Room[] = [];
+
+      if (user?.role === "member") {
+        // Staff Member: Communicate with Staff Head & Committee Members
+        const userComm = committeesData[0] || { _id: "comm_gen", name: "Finance & Audit Committee" };
+        formattedRooms = [
+          { id: `head_direct_${userComm._id}`, name: "💬 Committee Head Direct Chat", isCommittee: false },
+          { id: userComm._id, name: `🛡️ ${userComm.name}`, isCommittee: true },
+        ];
+      } else if (user?.role === "committee_head") {
+        // Committee Head: Communicate with Staff Members & Admin
+        const myComm = committeesData[0] || { _id: "comm_head", name: "My Committee Workspace" };
+        formattedRooms = [
+          { id: myComm._id, name: `🛡️ ${myComm.name}`, isCommittee: true },
+          { id: `members_channel_${myComm._id}`, name: "👥 Committee Members Channel", isCommittee: false },
+        ];
+      } else {
+        // Super Admin: Access all workspace channels
+        const allComms = committeesData.map((c: any) => ({
+          id: c._id,
+          name: c.name,
+          isCommittee: true
+        }));
+        formattedRooms = [
+          { id: "general", name: "General Workspace", isCommittee: false },
+          ...allComms
+        ];
+      }
+
+      setRooms(formattedRooms);
+      if (formattedRooms.length > 0) {
+        setActiveRoom(formattedRooms[0]);
+      }
     } catch (e) { addToast("Failed to fetch chat rooms", "error"); }
     finally { setLoadingRooms(false); }
   };
 
-  useEffect(() => { fetchRooms(); }, []);
+  useEffect(() => { fetchRooms(); }, [user]);
+
 
   // Room joining & fetching message history
   useEffect(() => {
