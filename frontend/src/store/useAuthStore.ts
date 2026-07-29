@@ -7,7 +7,12 @@ interface User {
   name: string;
   email: string;
   role: string;
+  phone?: string;
+  department?: string;
+  designation?: string;
+  bio?: string;
 }
+
 
 interface AuthState {
   user: User | null;
@@ -16,6 +21,7 @@ interface AuthState {
   login: (token: string, user: User) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
+  setUser: (user: User | null) => void;
   checkAuth: () => Promise<void>;
 }
 
@@ -23,7 +29,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
   loading: true,
+  setUser: (user) => set({ user }),
   login: (token, user) => {
+
     localStorage.setItem('token', token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     set({ token, user, loading: false });
